@@ -62,6 +62,8 @@ app.get('/weather', async (req, res) => {
         const latitude = cityData.lat;
         const longitude = cityData.lng;
 
+
+
         // 2. Schritt: Abrufen aller Städte im Umkreis
         const geoNamesAPIURL = `http://api.geonames.org/findNearbyPlaceNameJSON?lat=${latitude}&lng=${longitude}&radius=${radius}&cities=cities15000&maxRows=500&username=dgdms`;
         const response = await axios.get(geoNamesAPIURL);
