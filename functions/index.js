@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const {onRequest} = require("firebase-functions/v2/https");
+const logger = require("firebase-functions/logger");
+const functions = require('firebase-functions');
 require('dotenv').config()
-
 const app = express();
 app.use(cors());
 
@@ -12,13 +14,13 @@ function kelvinToCelsius(kelvin) {
     return parseFloat(celsius.toFixed(0));
 }
 
-async function getWeatherDataForCities(cityDataArray, apiKey) {
+async function getWeatherDataForCities(cityDataArray) {
     const weatherData = [];
 
     for (const cityData of cityDataArray) {
         try {
             const { lat, lon, name } = cityData;
-            const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WetterAPI}`);
+            const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WETTERAPI}`);
             const { temp_min, temp_max, temp } = response.data.main;
             const weather = {
                 min: kelvinToCelsius(temp_min),
@@ -51,7 +53,7 @@ app.get('/weather', async (req, res) => {
         const longitude = cityData.lng;
 
         // 2. Schritt: Abrufen aller Städte im Umkreis
-        const geoNamesAPIURL = `http://api.geonames.org/findNearbyPlaceNameJSON?lat=${latitude}&lng=${longitude}&radius=${radius}&cities=cities15000&maxRows=500&username=${process.env.GeoAPI}`;
+        const geoNamesAPIURL = `http://api.geonames.org/findNearbyPlaceNameJSON?lat=${latitude}&lng=${longitude}&radius=${radius}&cities=cities15000&maxRows=500&username=${process.env.GEOAPI}`;
         const response = await axios.get(geoNamesAPIURL);
         const geonamesAll = response.data.geonames;
         const filteredCities = geonamesAll.filter(city => city.population >= population);
@@ -83,6 +85,4 @@ app.get('/weather', async (req, res) => {
     }
 });
 
-app.listen(process.env.serverPort, () => {
-    console.log(`Server is running on port ${process.env.serverPort}`);
-});
+

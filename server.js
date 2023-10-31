@@ -83,6 +83,6 @@ app.get('/weather', async (req, res) => {
   }
 });
 
-app.listen(process.env.serverPort, () => {
-  console.log(`Server is running on port ${process.env.serverPort}`);
+app.listen(process.env.SERVERPORT, () => {
+  console.log(`Server is running on port ${process.env.SERVERPORT}`);
 });
