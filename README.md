@@ -47,10 +47,10 @@ Die Webapp nutzt folgende Technologien:
 
 ## Mitwirken
 
-Wenn du zur Verbesserung dieser Webapp beitragen möchtest, kannst du gerne Forks erstellen und Pull-Anfragen senden. Wir freuen uns über deine Beteiligung!
+Wenn du zur Verbesserung dieser Webapp beitragen möchtest, kannst du gerne Forks erstellen und Pull-Anfragen senden. Ich freue mich über deine Beteiligung!
 
 ## Lizenz
 
 Diese Webapp unterliegt der [MIT-Lizenz](https://github.com/dein-benutzername/sicherlichguteswetter/blob/main/LICENSE). Du darfst sie frei verwenden und anpassen.
 
-Wir hoffen, dass dir die SicherlichGutesWetter Webapp dabei hilft, immer das beste Wetter in deiner Umgebung zu finden. Viel Spaß beim Nutzen!
+Ich hoffe, dass dir die SicherlichGutesWetter Webapp dabei hilft, immer das beste Wetter in deiner Umgebung zu finden. Viel Spaß beim Nutzen!
