@@ -1,5 +1,4 @@
-# wetterApp
-Natürlich, hier ist eine überarbeitete Version des Readme, die die verwendeten APIs und Technologien einschließt:
+
 
 # SicherlichGutesWetter Webapp
 
