@@ -1,12 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const functions = require('firebase-functions');
-require('dotenv').config()
+
+const express = require('express');
+const cors = require('cors');
+const axios = require('axios');
+
 const app = express();
-app.use(cors());
+app.use(cors())
 
 
 function kelvinToCelsius(kelvin) {
@@ -14,39 +15,45 @@ function kelvinToCelsius(kelvin) {
     return parseFloat(celsius.toFixed(0));
 }
 
-async function getWeatherDataForCities(cityDataArray) {
+async function getWeatherDataForCities(cityNames) {
     const weatherData = [];
 
-    for (const cityData of cityDataArray) {
+    for (const city of cityNames) {
         try {
-            const { lat, lon, name } = cityData;
-            const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WETTERAPI}`);
-            const { temp_min, temp_max, temp } = response.data.main;
+            const response = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.WETTERAPI}`);
+            const { temp_min, temp_max, feels_like } = response.data.main;
             const weather = {
                 min: kelvinToCelsius(temp_min),
                 max: kelvinToCelsius(temp_max),
-                feels_like: kelvinToCelsius(temp),
-                city: name
+                feels_like: kelvinToCelsius(feels_like),
+                city: city
             };
             weatherData.push({ weather });
         } catch (error) {
-            console.error(`Fehler beim Abrufen der Wetterdaten für ${cityData.name}: ${error.message}`);
+            console.error(`Fehler beim Abrufen der Wetterdaten für ${city}: ${error.message}`);
         }
     }
 
     return weatherData;
 }
 
+
+
+
+
+
+
+
 app.get('/weather', async (req, res) => {
     try {
-        const { region, radius, population } = req.query;
+        const { region, radius, population} = req.query;
         if (!region || !radius || !population) {
-            res.status(400).json({ error: 'Stellen Sie sicher, dass alle erforderlichen Parameter (region, radius, population) angegeben sind.' });
+            res.status(400).json({ error: 'Stellen Sie sicher, dass alle erforderlichen Parameter (cityName, radius, username) angegeben sind.' });
             return;
         }
 
         // 1. Schritt: Abrufen der Längen- und Breitengrad-Koordinaten der Stadt
-        const geoNamesCoordinatesURL = `http://api.geonames.org/searchJSON?q=${region}&maxRows=1&username=dgdms`;
+        const geoNamesCoordinatesURL = `http://api.geonames.org/searchJSON?q=${region}&maxRows=1&username=${process.env.GEOAPI}`;
         const coordinatesResponse = await axios.get(geoNamesCoordinatesURL);
         const cityData = coordinatesResponse.data.geonames[0];
         const latitude = cityData.lat;
@@ -57,27 +64,22 @@ app.get('/weather', async (req, res) => {
         const response = await axios.get(geoNamesAPIURL);
         const geonamesAll = response.data.geonames;
         const filteredCities = geonamesAll.filter(city => city.population >= population);
+        const cityNames = filteredCities.map(city => city.name);
 
-        // Extrahiere Längen- und Breitengrade der gefundenen Städte
-        const cityDataArray = filteredCities.map(city => {
-            return {
-                lat: city.lat,
-                lon: city.lng,
-                name: city.name
-            };
-        });
 
-        // Aufruf der Funktion und Verwendung des Promise
-        getWeatherDataForCities(cityDataArray, process.env.WetterAPI)
+
+// Aufruf der Funktion und Verwendung des Promise
+        getWeatherDataForCities(cityNames)
             .then((weatherDataArray) => {
-                weatherDataArray.filter(element => element !== undefined);
-                weatherDataArray.sort((a, b) => b.weather.feels_like - a.weather.feels_like);
+                weatherDataArray.filter(element => element !== undefined)
+                weatherDataArray.sort((a, b) => b.weather.max - a.weather.max);
                 res.json(weatherDataArray);
             })
             .catch((error) => {
                 console.error(error);
                 res.status(500).json({ error: 'Ein allgemeiner Fehler ist aufgetreten' });
             });
+
 
     } catch (error) {
         console.error(error);
@@ -86,3 +88,5 @@ app.get('/weather', async (req, res) => {
 });
 
 
+
+exports.app = functions.https.onRequest(app);
