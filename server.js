@@ -5,7 +5,6 @@ require('dotenv').config()
 
 const app = express();
 app.use(cors());
-const port = 3000;
 
 
 function kelvinToCelsius(kelvin) {
@@ -84,6 +83,6 @@ app.get('/weather', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(process.env.serverPort, () => {
+  console.log(`Server is running on port ${process.env.serverPort}`);
 });
